@@ -1,12 +1,28 @@
 from django.shortcuts import render
 
 from django.http import HttpResponse
-
+from django.views import generic
 from feedgen.feed import FeedGenerator
 
 from first.models import Item
 
-def index(request):
+class IndexView(generic.ListView):
+    template_name = 'first/index.html'
+    context_object_name = 'item_list'
+
+    def get_queryset(self):
+        return Item.objects.all()
+
+def new_item(request):
+    # form for taking a url and scraping the info off it to generate an item
+    pass
+
+def confirm_new_item(request):
+    #display scraped info for new item, and ask user to confirm
+    #possibly allow to change data?
+    pass
+
+def feed(request):
     #return HttpResponse("Howdy!")
     fg = FeedGenerator()
     fg.load_extension('podcast')
