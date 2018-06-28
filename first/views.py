@@ -1,19 +1,38 @@
 from django.shortcuts import render
-
 from django.http import HttpResponse
 from django.views import generic
+from django.urls import reverse_lazy
+
 from feedgen.feed import FeedGenerator
 
 from first.models import Item
 
 class IndexView(generic.ListView):
+    model = Item
     template_name = 'first/index.html'
     context_object_name = 'item_list'
 
     def get_queryset(self):
         return Item.objects.all()
 
-def new_item(request):
+class ItemDetail(generic.DetailView):
+    model = Item
+    template_name = 'first/item_detail.html'
+    context_object_name = 'item'
+
+class NewItem(generic.edit.CreateView):
+    model = Item
+    fields = ['title', 'description', 'link']
+    
+class EditItem(generic.edit.UpdateView):
+    model = Item
+    fields = ['title', 'description', 'link']
+
+class DeleteItem(generic.edit.DeleteView):
+    model = Item
+    success_url = reverse_lazy('index')
+
+def import_item(request):
     # form for taking a url and scraping the info off it to generate an item
     pass
 
@@ -30,7 +49,12 @@ def feed(request):
     fg.title('Some Other title')
     fg.author( {'name': 'me of course', 'email': 'blarf@gmail.com'})
     fg.link( href='http://35.224.79.205/first', rel='self')
-    fg.logo('https://www.mormonnewsroom.org/media/960x540/ElderBallard.jpg')
+    #fg.logo('http://www.mormonnewsroom.org/media/960x540/ElderBallard.jpg')
+    fg.image(url='http://35.224.79.205/static/frog.jpg',
+             title='image title',
+             link='http://35.224.79.205',
+             width='800',
+             height='600')
     fg.description('some description')
     #fg.author({'name': 'why me, of course', 'email':'someemail@gmail.com'})
     # author not actually put in the feed

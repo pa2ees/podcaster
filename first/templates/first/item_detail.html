@@ -1,0 +1,6 @@
+<h1>{{ item.title }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+{{ item.description }}<br>
+<a href='{{ item.link }}'>{{ item.link }}</a>
