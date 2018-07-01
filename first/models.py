@@ -11,7 +11,7 @@ class Podcast(models.Model):
      cover = models.CharField(max_length=1000)
 
      def get_absolute_url(self):
-          return reverse('podcast', kwargs={'pk': self.pk})
+          return reverse('podcast_list', kwargs={'pk': self.pk})
     
 
 class Item(models.Model):
@@ -28,6 +28,7 @@ class Podcast_Item(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     podcast = models.ForeignKey(Podcast, on_delete=models.CASCADE)
     pub_date = models.DateTimeField(auto_now_add=True)
+
     # title
     # publish date
     # description

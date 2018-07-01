@@ -1,0 +1,16 @@
+<h1>Podcaster</h1>
+
+{% if podcast_list %}
+<table>
+  {% for podcast in podcast_list %}
+  <tr><td><a href="{% url 'podcast_items' podcast.id %}">({ podcast.title }) </a></td>
+    <td><a href="{% url 'podcast_edit' podcast.id %}">(edit)</a></td>
+    <td><a href="{% url 'podcast_delete' podcast.id %}">(delete)</a></td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% else %}
+<p>No podcasts are available.</p>
+<a href="{% url 'podcast_new' %}">add</a>
+{% endif %}
