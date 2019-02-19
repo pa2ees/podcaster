@@ -15,30 +15,74 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Item.objects.all()
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['podcast_list'] = Podcast.objects.all()
+        return data
+
 class PodcastList(generic.ListView):
     model = Podcast
-    template_name = 'first/poddcast_list.html'
+    template_name = 'first/podcast_list.html'
     context_object_name = 'podcast_list'
 
     def get_queryset(self):
         return Podcast.objects.all()
     
+class PodcastDetails(generic.DetailView):
+    model = Podcast
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['podcast_items']
+
 class NewPodcast(generic.CreateView):
     model = Podcast
-    fields = ['title', 'guid', 'link', 'description', 'summary', 'author', 'cover']
+    fields = ['title', 'guid', 'description', 'summary', 'author', 'cover']
+
+
+class EditPodcast(generic.edit.UpdateView):
+    model = Podcast
+    fields = ['title', 'guid', 'description', 'summary', 'author', 'cover']
+
+class DeletePodcast(generic.edit.DeleteView):
+    model = Podcast
+    success_url = reverse_lazy('podcast_list')
+
+
+class PodcastAddItem(generic.DetailView):
+    model = Item
+    template_name = 'first/podcast_add_item.html'
+    context_object_name = 'context'
+
+    def get_context_data(self, **kwargs):
+        data = {}
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        data['error'] = 'no error'
+        data['items'] = Item.objects.all()
+        if pk is not None:
+            data['podcast'] = Podcast.objects.get(pk=pk)
+        else:
+            data['error'] = 'pk not defined'
+        data.update(kwargs)
+        return super().get_context_data(**data)
+
+class PodcastFeed(generic.ListView):
+    model = Item
+            
 
 
 ##### Figure out how to use a specific Podcast,
 ##### and get a Podcast_Item list and pass both
 ##### sets of info to the template
-class PodcastItems(generic.listView):
-    model = Podcast_item
+class PodcastItems(generic.ListView):
+    model = Podcast_Item
     template_name = 'first/podcast_items.html'
     context_object_name = 'podcast_item_list'
 
     def get_queryset(self):
-        return Podcast.?????
+        pass#qs = Podcast_Item.???
 
+        
 class ItemDetail(generic.DetailView):
     model = Item
     template_name = 'first/item_detail.html'
