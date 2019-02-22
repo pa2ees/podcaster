@@ -1,15 +1,12 @@
 import logging
 
-log_level = logging.DEBUG
-logging.basicConfig(level=log_level, format = '%(asctime)s  %(levelname)-10s %(name)s %(message)s', datefmt =  "%Y-%m-%d-%H-%M-%S")
-
 log = logging.getLogger(__name__)
 
 
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 
 from feedgen.feed import FeedGenerator
@@ -66,7 +63,9 @@ class PodcastAddItem(generic.edit.FormView):#generic.DetailView):
     context_object_name = 'ctx'
     form_class = PodcastNewItemForm
 
+
     def get_context_data(self, **kwargs):
+        log.debug("Getting context data")
         data = super().get_context_data(**kwargs)
         
         pk = self.kwargs.get('pk')
@@ -76,11 +75,25 @@ class PodcastAddItem(generic.edit.FormView):#generic.DetailView):
             data['podcast'] = Podcast.objects.get(pk=pk)
         else:
             data['error'] = 'pk not defined'
+
+        data['items'] = {}
         data.update(kwargs)
         blarf = super().get_context_data(**data)
         return data
 
+    def get_initial(self):
+        log.debug("in get_initial")
+        initial = super().get_initial()
+        initial['podcast'] = self.kwargs.get('pk')
 
+        return initial        
+
+    def get_success_url(self):
+        return reverse('podcast_items', kwargs={'pk': self.kwargs.get('pk')})
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 class PodcastFeed(generic.ListView):
     model = Item

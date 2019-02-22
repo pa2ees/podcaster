@@ -1,3 +1,10 @@
+import logging
+
+#log_level = logging.DEBUG
+#logging.basicConfig(level=log_level, format = '%(asctime)s  %(levelname)-10s %(name)s %(message)s', datefmt =  "%Y-%m-%d-%H-%M-%S")
+
+log = logging.getLogger(__name__)
+
 from django.db import models
 from django.urls import reverse
 from django import forms
@@ -39,13 +46,45 @@ class Podcast_Item(models.Model):
     # file size
     # explicit rating
 
-class PodcastNewItemForm(forms.Form):
+class PodcastNewItemForm(forms.ModelForm):
+     
+
      podcast = forms.IntegerField(required=True, widget=forms.HiddenInput())
 
      def __init__(self, *args, **kwargs):
           super().__init__(*args, **kwargs)
           items = Item.objects.all()
+          
+          
           for idx,item in enumerate(items):
-               field_name = 'item_{}'.format(idx)
-               self.fields[field_name] = forms.BooleanField(label=item.title)
-     
+               field_name = 'item_{}'.format(item.id)
+               self.fields[field_name] = forms.BooleanField(required=False, label=item.title)
+
+     def clean(self):
+          log.debug("Cleaning data... ")
+
+          podcast = Podcast.objects.get(pk=self.cleaned_data['podcast'])
+          self.cleaned_data['podcast'] = podcast
+
+          checked_items = []
+
+          items = Item.objects.all()
+          for item in items:
+               cleaned_item = self.cleaned_data.get('item_{}'.format(item.id))
+               if cleaned_item:
+                    podcast_item = Podcast_Item(podcast=podcast, item=item)
+                    checked_items.append(podcast_item)
+
+          self.cleaned_data['checked_items'] = checked_items
+          
+
+     def save(self):
+          log.debug("Saving data... ")
+
+          for item in self.cleaned_data['checked_items']:
+               pk = item.save()
+               log.debug("Saved podcast item with id {}".format(pk))
+
+     class Meta:
+          model = Podcast_Item
+          fields = ['podcast']
