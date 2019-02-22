@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django import forms
 
 class Podcast(models.Model):
      title = models.CharField(max_length=200)
@@ -37,3 +38,14 @@ class Podcast_Item(models.Model):
     # duration
     # file size
     # explicit rating
+
+class PodcastNewItemForm(forms.Form):
+     podcast = forms.IntegerField(required=True, widget=forms.HiddenInput())
+
+     def __init__(self, *args, **kwargs):
+          super().__init__(*args, **kwargs)
+          items = Item.objects.all()
+          for idx,item in enumerate(items):
+               field_name = 'item_{}'.format(idx)
+               self.fields[field_name] = forms.BooleanField(label=item.title)
+     

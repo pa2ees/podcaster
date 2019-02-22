@@ -1,23 +1,19 @@
 <h1>Podcaster</h1>
 
-{% if context %}
 
-<h2>barf {{ context.podcast.title }}</h2>
+<h2>barf {{ podcast.title }}</h2>
 
 
 <form method="post">{% csrf_token %}
   <table>
-    <tr><td><b>Items</b></td></tr>
-    {% for item in context.items %}
-    <tr><td><a href="{% url 'podcast_items' podcast.id %}">{{ item.name }} </a></td>
+    <tr><td><b>Items</b></td><td><b>Add</b></td></tr>
+    {% for item in form %}
+
+    <tr><td><a href="{% url 'item_detail' item.id %}"> {{ item.title }} </a></td>
       <td><input type="checkbox" name="barf" value="{{ item.pk }}" /></td>
     </tr>
     {% endfor %}
   </table>
   <input type="submit" value="Add Selected Items" />
 </form>
-<p>error: {{ context.error }}</p>
-{% else %}
-<p>error: {{ context.error }}</p>
-<a href="{% url 'podcast_new' %}">add</a>
-{% endif %}
+

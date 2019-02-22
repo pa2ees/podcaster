@@ -1,11 +1,22 @@
+import logging
+
+log_level = logging.DEBUG
+logging.basicConfig(level=log_level, format = '%(asctime)s  %(levelname)-10s %(name)s %(message)s', datefmt =  "%Y-%m-%d-%H-%M-%S")
+
+log = logging.getLogger(__name__)
+
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
 from django.urls import reverse_lazy
 
+
 from feedgen.feed import FeedGenerator
 
 from first.models import Item, Podcast, Podcast_Item
+from first.models import PodcastNewItemForm
+
 
 class IndexView(generic.ListView):
     model = Podcast
@@ -33,7 +44,7 @@ class PodcastDetails(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data['podcast_items']
+        data['podcast_items'] #not done yet
 
 class NewPodcast(generic.CreateView):
     model = Podcast
@@ -49,14 +60,16 @@ class DeletePodcast(generic.edit.DeleteView):
     success_url = reverse_lazy('podcast_list')
 
 
-class PodcastAddItem(generic.DetailView):
+class PodcastAddItem(generic.edit.FormView):#generic.DetailView):
     model = Item
     template_name = 'first/podcast_add_item.html'
-    context_object_name = 'context'
+    context_object_name = 'ctx'
+    form_class = PodcastNewItemForm
 
     def get_context_data(self, **kwargs):
-        data = {}
-        pk = self.kwargs.get(self.pk_url_kwarg)
+        data = super().get_context_data(**kwargs)
+        
+        pk = self.kwargs.get('pk')
         data['error'] = 'no error'
         data['items'] = Item.objects.all()
         if pk is not None:
@@ -64,7 +77,10 @@ class PodcastAddItem(generic.DetailView):
         else:
             data['error'] = 'pk not defined'
         data.update(kwargs)
-        return super().get_context_data(**data)
+        blarf = super().get_context_data(**data)
+        return data
+
+
 
 class PodcastFeed(generic.ListView):
     model = Item
