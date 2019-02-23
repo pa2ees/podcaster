@@ -3,8 +3,9 @@
 
 {% if item_list %}
 <table>
+  <tr><td><b>Item</b></td><td><b>Speaker</b>
     {% for item in item_list %}
-       <tr><td> <a href="{% url 'item_detail' item.id %}">{{ item.title }}</a></td><td><a href="{% url 'item_edit' item.id %}">edit</a></td><td> <a href="{% url 'item_delete' item.id %}">delete</a></td></tr>
+       <tr><td> <a href="{% url 'item_detail' item.id %}">{{ item.title }}</a></td><td>{{ item.speaker }}</td><td><a href="{% url 'item_edit' item.id %}">edit</a></td><td> <a href="{% url 'item_delete' item.id %}">delete</a></td></tr>
     {% endfor %}
 </table>
 

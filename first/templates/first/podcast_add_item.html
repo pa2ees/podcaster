@@ -13,7 +13,7 @@
     <tr><td><b>Items</b></td><td><b>Add</b></td></tr>
 
     {% for item in items %}
-    <tr><td><a href="hello"> {{ item.title }} </a></td>
+    <tr><td><a href="{% url 'item_detail' pk=item.id %}"> {{ item.title }} </a></td><td>{{ item.speaker }}</td>
       <td><input type="checkbox" name="cb_{{ item.id }}" value="1" /></td>
     </tr>
     {% endfor %}

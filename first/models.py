@@ -23,11 +23,12 @@ class Item(models.Model):
      title = models.CharField(max_length=200)
      #pub_date = models.DateTimeField
      description = models.CharField(max_length=1000)
+     speaker = models.CharField(max_length=200)
      link = models.CharField(max_length=200)
      #item_type = models.CharField(max_length=200)
 
      def get_absolute_url(self):
-          return reverse('detail', kwargs={'pk': self.pk})
+          return reverse('item_detail', kwargs={'pk': self.pk})
 
 class Podcast_Item(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)

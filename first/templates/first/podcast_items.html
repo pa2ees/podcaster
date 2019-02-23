@@ -2,7 +2,7 @@
 
 <table>
   <tr><td><b>GUID: </b></td><td>{{ podcast.guid }}</td></tr>
-  <tr><td><b>Link: </b></td><td>{{ podcast.link }}</td></tr>
+  <tr><td><b>Link: </b></td><td><a href="{% url 'podcast_feed' podcast.id %}">feed</a></td></tr>
   <tr><td><b>Description: </b></td><td>{{ podcast.description }}</td></tr>
   <tr><td><b>Summary: </b></td><td>{{ podcast.summary }}</td></tr>
   <tr><td><b>Author: </b></td><td>{{ podcast.author }}</td></tr>
@@ -12,9 +12,13 @@
 
 <img src={{ podcast.cover }} />
 
+<hr>
+<h2>Podcast Items</h2>
+
 <table>
+  <tr><td><b>Title</b></td><td><b>Speaker</b></td></tr>
   {% for item in podcast_item_list %}
-    <tr><td>{{ item.title }}</td></tr>
+    <tr><td><a href="{% url 'item_detail' item.id %}">{{ item.title }}</a></td><td>{{ item.speaker }}</td><td>remove</td><td>re-add</td></tr>
 
   {% endfor %}
     

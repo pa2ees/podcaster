@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
 from django.urls import reverse_lazy, reverse
-
+#from django.http import request
 
 from feedgen.feed import FeedGenerator
 
@@ -49,7 +49,7 @@ class NewPodcast(generic.CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        self.object.link = reverse('podcast_items', kwargs={'pk': self.object.id})
+        self.object.link = request.build_absolute_uri(reverse('podcast_items', kwargs={'pk': self.object.id}))
         self.object.save()
         # super ModelFormMixin to because that is the form_valid we are overriding
         return super(generic.edit.ModelFormMixin, self).form_valid(form)
@@ -102,8 +102,8 @@ class PodcastAddItem(generic.edit.FormView):#generic.DetailView):
         form.save()
         return super().form_valid(form)
 
-class PodcastFeed(generic.ListView):
-    model = Item
+def podcast_feed(request, **kwargs):
+    return feed(request, **kwargs)
 
 
 class PodcastItems(generic.ListView):
@@ -130,15 +130,21 @@ class ItemDetail(generic.DetailView):
 
 class NewItem(generic.edit.CreateView):
     model = Item
-    fields = ['title', 'description', 'link']
+    fields = ['title', 'description', 'speaker', 'link']
     
 class EditItem(generic.edit.UpdateView):
     model = Item
-    fields = ['title', 'description', 'link']
+    fields = ['title', 'description', 'speaker', 'link']
 
 class DeleteItem(generic.edit.DeleteView):
     model = Item
     success_url = reverse_lazy('index')
+
+class DeleteItemFromPodcast(generic.edit.DeleteView):
+    model = Podcast_Item
+
+    def get_success_url(self):
+        return
 
 def import_item(request):
     # form for taking a url and scraping the info off it to generate an item
@@ -149,33 +155,45 @@ def confirm_new_item(request):
     #possibly allow to change data?
     pass
 
-def feed(request):
+def feed(request, **kwargs):
     #return HttpResponse("Howdy!")
+    pk = kwargs.get('pk')
+
+    podcast = Podcast.objects.get(pk=pk)
+
     fg = FeedGenerator()
     fg.load_extension('podcast')
-    fg.id('dingus.com')
-    fg.title('Some Other title')
-    fg.author( {'name': 'me of course', 'email': 'blarf@gmail.com'})
-    fg.link( href='http://35.224.79.205/first', rel='self')
+    fg.id("{}-{}".format(podcast.id, podcast.title).replace(' ', '_'))
+    fg.title(podcast.title)
+    fg.author( {'name': podcast.author, 'email': 'pa2ees42@gmail.com'})
+    fg.link( href=request.build_absolute_uri(reverse('podcast_feed', kwargs={'pk':pk})))
     #fg.logo('http://www.mormonnewsroom.org/media/960x540/ElderBallard.jpg')
-    fg.image(url='http://35.224.79.205/static/frog.jpg',
-             title='image title',
-             link='http://35.224.79.205',
+    fg.image(url=podcast.cover,
+             title=podcast.title,
+             link=request.build_absolute_uri(reverse('podcast_items', kwargs={'pk':pk})),
              width='800',
              height='600')
-    fg.description('some description')
+    fg.description(podcast.description)
+    #fg.summary(podcast.summary)
     #fg.author({'name': 'why me, of course', 'email':'someemail@gmail.com'})
     # author not actually put in the feed
 
-    for item in Item.objects.all():
+    if pk:
+        
+        item_list = Podcast_Item.objects.filter(podcast__pk=pk)#Item.objects.filter(podcast_item__podcast__pk=kwargs.get('pk'))
+    else:
+        item_list = Podcast_Item.objects.all()
+        
+    for item in item_list:
         
         fe = fg.add_entry()
 
-        fe.id("{}".format(item.id))
-        fe.title(item.title)
-        fe.link(href=item.link)
-        fe.description(item.description)
-        fe.enclosure(item.link, 0, 'audio/mpeg')
+        fe.id("{}-{}".format(item.id, item.item.title.replace(' ', '_')))
+        fe.title(item.item.title)
+        fe.pubdate(item.pub_date)
+        fe.link(href=item.item.link)
+        fe.description(item.item.description)
+        fe.enclosure(item.item.link, 0, 'audio/mpeg')
         #fe.id('http://media2.ldscdn.org/assets/general-conference/april-2018-general-conference/2018-03-1020-m-russell-ballard-64k-eng.mp3?download=true')
         # fe.id('12345')
         #fe.title('First')
