@@ -97,19 +97,23 @@ class PodcastAddItem(generic.edit.FormView):#generic.DetailView):
 
 class PodcastFeed(generic.ListView):
     model = Item
-            
 
 
-##### Figure out how to use a specific Podcast,
-##### and get a Podcast_Item list and pass both
-##### sets of info to the template
 class PodcastItems(generic.ListView):
-    model = Podcast_Item
+    model = Item
     template_name = 'first/podcast_items.html'
     context_object_name = 'podcast_item_list'
 
     def get_queryset(self):
-        pass#qs = Podcast_Item.???
+        qs = Item.objects.filter(podcast_item__podcast__pk=self.kwargs.get('pk'))
+        log.debug("qs: {}".format(qs))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['podcast'] = Podcast.objects.get(pk=self.kwargs.get('pk'))
+        return data
+    
 
         
 class ItemDetail(generic.DetailView):
