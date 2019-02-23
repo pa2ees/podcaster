@@ -1,0 +1,21 @@
+<h1>{{ podcast.title }}</h1>
+
+<table>
+  <tr><td><b>GUID: </b></td><td>{{ podcast.guid }}</td></tr>
+  <tr><td><b>Link: </b></td><td>{{ podcast.link }}</td></tr>
+  <tr><td><b>Description: </b></td><td>{{ podcast.description }}</td></tr>
+  <tr><td><b>Summary: </b></td><td>{{ podcast.summary }}</td></tr>
+  <tr><td><b>Author: </b></td><td>{{ podcast.author }}</td></tr>
+
+</table>
+
+
+<img src={{ podcast.cover }} />
+
+<table>
+  {% for item in podcast_item_list %}
+    <tr><td>{{ item.title }}</td></tr>
+
+  {% endfor %}
+    
+</table>

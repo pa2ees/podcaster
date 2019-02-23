@@ -47,10 +47,17 @@ class NewPodcast(generic.CreateView):
     model = Podcast
     fields = ['title', 'guid', 'description', 'summary', 'author', 'cover']
 
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.link = reverse('podcast_items', kwargs={'pk': self.object.id})
+        self.object.save()
+        # super ModelFormMixin to because that is the form_valid we are overriding
+        return super(generic.edit.ModelFormMixin, self).form_valid(form)
+
 
 class EditPodcast(generic.edit.UpdateView):
     model = Podcast
-    fields = ['title', 'guid', 'description', 'summary', 'author', 'cover']
+    fields = ['title', 'guid', 'description', 'summary', 'author', 'cover', 'link']
 
 class DeletePodcast(generic.edit.DeleteView):
     model = Podcast
@@ -106,7 +113,7 @@ class PodcastItems(generic.ListView):
 
     def get_queryset(self):
         qs = Item.objects.filter(podcast_item__podcast__pk=self.kwargs.get('pk'))
-        log.debug("qs: {}".format(qs))
+        #log.debug("qs: {}".format(qs))
         return qs
 
     def get_context_data(self, **kwargs):

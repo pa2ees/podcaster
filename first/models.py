@@ -16,7 +16,7 @@ class Podcast(models.Model):
      cover = models.CharField(max_length=1000)
 
      def get_absolute_url(self):
-          return reverse('podcast_list', kwargs={'pk': self.pk})
+          return reverse('podcast_items', kwargs={'pk': self.pk})
     
 
 class Item(models.Model):
